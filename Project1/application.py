@@ -2,7 +2,9 @@ import os
 
 from flask import Flask, session,url_for,redirect
 from flask import Flask,render_template,request,flash
+from flask_session import Session
 from  datetime import datetime
+# from Database import *
 
 app = Flask(__name__)
 app.secret_key = "secret"
@@ -22,33 +24,25 @@ def indexed():
 @app.route("/register")
 def index():    
     return render_template("Registration.html")
- 
-  
-@app.route("/auth",methods = ["GET","POST"])
-def authenticate():
-    Registration.query.all()
+
+@app.route("/User",methods = ["GET","POST"])
+def User():
+    
+    # Registration.query.all()
     name = request.form.get("fname")
     email = request.form.get("Email")
     pswd  = request.form.get("password")
-       
+    # register = Registration(Firstname =  name ,Email=email,Password = pswd,datetime = str(datetime.now()))
+    
     try:
-        Member = db.session.query(Registration).filter(Registration.Email == email).all()
-        if len(Member) >0 :
-            
-            print(len(Member))
-            print(Member[0].Password)
-            if Member[0].Email == email and Member[0].Password == pswd:
-                print(Member[0].Firstname)
-                session['username'] = request.form.get("Email")
-                return redirect(url_for('indexed'))   
-            else:
-                return render_template("error.html", errors = " Username / Password is incorrect")
-        else:
-            return "<h1> Please Login / Register </h1>"
-
+        # db.session.add(register)
+        # db.session.commit()
+        return render_template("User.html",f=name,email = email)
+        
     except Exception :
 	    return render_template("error.html", errors = "Details are already given")
-        
+
+
                     
         
    
