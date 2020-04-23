@@ -4,12 +4,20 @@ from flask import Flask, session,url_for,redirect
 from flask import Flask,render_template,request,flash
 from flask_session import Session
 from  datetime import datetime
-# from Database import *
+from sqlalchemy import create_engine
+from sqlalchemy.orm import scoped_session, sessionmaker
+from model import *
 
 app = Flask(__name__)
 app.secret_key = "secret"
 app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+engine = create_engine(os.getenv("DATABASE_URL"))
+Session(app)
+db.init_app(app)
+
+with app.app_context():
+	db.create_all()
 
 @app.route('/')
 def indexed():
@@ -28,19 +36,21 @@ def index():
 @app.route("/User",methods = ["GET","POST"])
 def User():
     
-    # Registration.query.all()
-    name = request.form.get("fname")
-    email = request.form.get("Email")
-    pswd  = request.form.get("password")
-    # register = Registration(Firstname =  name ,Email=email,Password = pswd,datetime = str(datetime.now()))
+    db.create_all()
+    if request.method == "POST":
+        name = request.form.get("fname")
+        email = request.form.get("Email")
+        pswd  = request.form.get("password")
+        register = Registration(Email = email, Password = pswd, datetime = str(datetime.now()))
     
-    try:
-        # db.session.add(register)
-        # db.session.commit()
-        return render_template("User.html",f=name,email = email)
         
-    except Exception :
-	    return render_template("error.html", errors = "Details are already given")
+        db.session.add(register)
+        db.session.commit()
+        return render_template("User.html")
+            
+        # except Exception :
+        #     # return render_template("error.html", errors = "Details are already given")
+    return render_template("error.html", errors = "Details are already given")
 
 
                     
