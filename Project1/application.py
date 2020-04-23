@@ -51,9 +51,14 @@ def User():
         # except Exception :
         #     # return render_template("error.html", errors = "Details are already given")
     return render_template("error.html", errors = "Details are already given")
+    
+@app.route("/admin")
 
-
-                    
+def Member():
+      """List all users."""
+     
+      Member = Registration.query.all()
+      return render_template("show.html", Member = Member)                
         
    
         
