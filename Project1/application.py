@@ -9,7 +9,9 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 from model import *
 
 app = Flask(__name__)
-app.secret_key = "secret"
+# app.config['SECRET_KEY'] = 'super secret key'
+app.secret_key = 'any random string'
+# app.secret_key = "secret"
 app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 engine = create_engine(os.getenv("DATABASE_URL"))
@@ -19,14 +21,12 @@ db.init_app(app)
 with app.app_context():
 	db.create_all()
 
-@app.route('/')
-def indexed():
-    if 'username' in session:
-        username = session['username']
-        return 'Logged in as ' + username + '<br>' + \
-         "<b><a href = '/logout'>click here to log out</a></b>"
-    return "You are not logged in <br><a href = '/login'></b>" + \
-      "click here to log in</b></a>"
+@app.route("/")
+def index0():
+	if 'email' in session and 'key' in session:
+		return render_template("home.html")
+	return redirect(url_for("register"))
+
   
 
 @app.route("/register")
@@ -61,31 +61,30 @@ def Member():
       return render_template("show.html", Member = Member)
 
 @app.route("/auth",methods = ["GET","POST"])
-def authenticate():
-    Registration.query.all()
-    name = request.form.get("fname")
-    email = request.form.get("Email")
-    pswd  = request.form.get("password")
-       
-    try:
-        Member = db.session.query(Registration).filter(Registration.Email == email).all()
-        if len(Member) >0 :
-            
-            print(len(Member))
-            print(Member[0].Password)
-            if Member[0].Email == email and Member[0].Password == pswd:
-                print(Member[0].Firstname)
-                session['username'] = request.form.get("Email")
-                return redirect(url_for('indexed'))   
+def auth():
+    if request.method == "POST":
+        email = request.form.get('Email')
+        pswd = request.form.get('password')
+
+        userData = Registration.query.filter_by(Email=email).first()
+
+        if userData is not None:
+            if userData.Email == email and userData.Password == pswd:
+                session['email'] = request.form['email']
+                # return redirect(url_for('index0'))
             else:
-                return render_template("error.html", errors = " Username / Password is incorrect")
+                return render_template("Registration.html", message="username/password is incorrect!!")
         else:
-            return "<h1> Please Login / Register </h1>"
-        
-                    
-        
-    except Exception :
-	    return render_template("error.html", errors = "Details are already given")              
+            return render_template("Registration.html", message="Account doesn't exists, Please register!")
+    else:
+        return "<h1>Please login/register instead.</h1>"
+ 
+
+@app.route('/logout')
+def logout():
+   # remove the username from the session if it is there
+   session.pop('Email', None)
+   return redirect(url_for('index0'))             
         
    
         
