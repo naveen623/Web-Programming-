@@ -9,9 +9,7 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 from model import *
 
 app = Flask(__name__)
-# app.config['SECRET_KEY'] = 'super secret key'
 app.secret_key = 'any random string'
-# app.secret_key = "secret"
 app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 engine = create_engine(os.getenv("DATABASE_URL"))
@@ -36,20 +34,16 @@ def index():
 @app.route("/User",methods = ["GET","POST"])
 def User():
     
-    db.create_all()
     if request.method == "POST":
         name = request.form.get("fname")
         email = request.form.get("Email")
         pswd  = request.form.get("password")
-        register = Registration(Email = email, Password = pswd, datetime = str(datetime.now()))
+        register = Registration(Email = email, Password = pswd)
     
         
         db.session.add(register)
         db.session.commit()
         return render_template("User.html")
-            
-        # except Exception :
-        #     # return render_template("error.html", errors = "Details are already given")
     return render_template("error.html", errors = "Details are already given")
     
 @app.route("/admin")
@@ -71,7 +65,6 @@ def auth():
         if userData is not None:
             if userData.Email == email and userData.Password == pswd:
                 session['email'] = request.form['email']
-                # return redirect(url_for('index0'))
             else:
                 return render_template("Registration.html", message="username/password is incorrect!!")
         else:
@@ -82,22 +75,5 @@ def auth():
 
 @app.route('/logout')
 def logout():
-   # remove the username from the session if it is there
    session.pop('Email', None)
-   return redirect(url_for('index0'))             
-        
-   
-        
-    
-
-
-    
-
-  
-
-
-
-   
-
-
-            
+   return redirect(url_for('index0'))  
