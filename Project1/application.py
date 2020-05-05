@@ -1,12 +1,17 @@
 import os
+import sys
+import time
 
 from flask import Flask, session,url_for,redirect
 from flask import Flask,render_template,request,flash
 from flask_session import Session
 from  datetime import datetime
+from details import *
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
-from model import *
+
+from werkzeug.security import generate_password_hash, check_password_hash
+
 
 app = Flask(__name__)
 app.secret_key = 'any random string'
@@ -21,30 +26,29 @@ with app.app_context():
 
 @app.route("/")
 def index0():
-	if 'email' in session and 'key' in session:
-		return render_template("home.html")
+	
 	return redirect(url_for("register"))
 
   
 
-@app.route("/register")
-def index():    
-    return render_template("Registration.html")
 
-@app.route("/User",methods = ["GET","POST"])
-def User():
-    
-    if request.method == "POST":
+@app.route("/register",methods = ["GET","POST"])
+def register():
+    if request.method == "GET":
+        return render_template("Registration.html")
+    elif request.method == "POST":
         name = request.form.get("fname")
         email = request.form.get("Email")
-        pswd  = request.form.get("password")
-        register = Registration(Email = email, Password = pswd)
+        pswd  = generate_password_hash(str(request.form.get("password")))
+
+        register = Registration(Email = email, Password = pswd,dt = time.ctime(time.time()))
     
         
         db.session.add(register)
         db.session.commit()
         return render_template("User.html")
-    return render_template("error.html", errors = "Details are already given")
+    else:
+        return render_template("error.html", errors = "Details are already given")
     
 @app.route("/admin")
 
@@ -60,11 +64,11 @@ def auth():
         email = request.form.get('Email')
         pswd = request.form.get('password')
 
-        userData = Registration.query.filter_by(Email=email).first()
+        userData = Registration.query.filter_by(Email = email).first()
 
-        if userData is not None:
-            if userData.Email == email and userData.Password == pswd:
-                session['email'] = request.form['email']
+        if userData is not None and check_password_hash(userData.Password,pswd):
+            if userData.Email == email:
+                return render_template("User.html")
             else:
                 return render_template("Registration.html", message="username/password is incorrect!!")
         else:
@@ -75,5 +79,4 @@ def auth():
 
 @app.route('/logout')
 def logout():
-   session.pop('Email', None)
-   return redirect(url_for('index0'))  
+   return redirect(url_for('register'))

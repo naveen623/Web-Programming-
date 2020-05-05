@@ -64,36 +64,18 @@
 </head>
 <body>
     
-    <form action = "/User" method="POST">
+    <form action = "/register" method="POST">
         
-        
-        <h2>First Name :</h2>
-        <input type="text" placeholder="First Name" name="fname" >
+    
+        <p style="color:red;">{{ message }}</p>
 
-        <h2>Last Name :</h2>
-        <input type="text" placeholder="Last Name" name="lname">
-
-        <h2>Age :</h2>
-        <input type="number" placeholder="Age" name="age">
-     
-        <h2>Gender:</h2>
-
-        <h3>Male</h3>
-        <input type="radio" id="male" name="gender" value="male">
-        
-        <h3>Female</h3>
-        <input type="radio" id="female" name="gender" value="female">
-        
         <h2>Email Id</h2>
         <input type="text" id = "Email" name = "Email" required >
 
         <h2>Password</h2>
         <input type="password" id="password" name = "password" required >
 
-        <h2>Repeat Password</h2>
-        <input type="password" placeholder="Repeat Password" name = "password" >
         
-        <p>By creating an account you agree to our <a href="#">Terms & Privacy</a>.</p>
 
         <button type="submit" class="registerbtn">Register</button>
 
